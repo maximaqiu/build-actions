@@ -8,28 +8,57 @@
 # 如果你有编译ipv6的话，‘去掉LAN口使用内置的 IPv6 管理’代码前面也加 # 注释掉
 
 
+# 流量统计
+git clone https://github.com/AlexZhuo/luci-app-bandwidthd.git package/luci-app-bandwidthd
+# 应用过滤
+git clone https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
+# clash代理
+git clone https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
+# 常用插件包
+# git clone https://github.com/siropboy/sirpdboy-package package/sirpdboy-package
+# AdGuardHome的openwrt的luci界面
+git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
+# KoolProxy 的 LuCI 控制界面
+git clone https://github.com/iwrt/luci-app-ikoolproxy.git package/luci-app-ikoolproxy
+# wdr4310
+# git clone https://github.com/maximaqiu/openpack package/lean
+git clone https://github.com/kenzok8/jell package/jell
+
+
+
 cat >$NETIP <<-EOF
-uci set network.lan.ipaddr='192.168.2.2'                                    # IPv4 地址(openwrt后台地址)
+uci set network.lan.ipaddr='192.168.8.1'                                    # IPv4 地址(openwrt后台地址)
 uci set network.lan.netmask='255.255.255.0'                                 # IPv4 子网掩码
-uci set network.lan.gateway='192.168.2.1'                                   # IPv4 网关
-uci set network.lan.broadcast='192.168.2.255'                               # IPv4 广播
+# uci set network.lan.gateway='192.168.2.1'                                   # IPv4 网关
+uci set network.lan.broadcast='192.168.8.255'                               # IPv4 广播
 uci set network.lan.dns='223.5.5.5 114.114.114.114'                         # DNS(多个DNS要用空格分开)
 uci set network.lan.delegate='0'                                            # 去掉LAN口使用内置的 IPv6 管理
 uci commit network                                                          # 不要删除跟注释,除非上面全部删除或注释掉了
 #uci set dhcp.lan.ignore='1'                                                 # 关闭DHCP功能
 #uci commit dhcp                                                             # 跟‘关闭DHCP功能’联动,同时启用或者删除跟注释
-uci set system.@system[0].hostname='OpenWrt-123'                            # 修改主机名称为OpenWrt-123
+
+uci set luci.main.lang=zh_cn
+uci commit luci
+
+uci set system.@system[0].timezone=CST-8
+uci set system.@system[0].zonename=Asia/Shanghai
+uci set system.@system[0].hostname='Huawei'                            # 修改主机名称为OpenWrt-123
+uci commit system
 EOF
 
-sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile            # 选择argon为默认主题
+# sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile            # 选择argon为默认主题
 
 sed -i "s/OpenWrt /${Author} compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt /g" $ZZZ           # 增加个性名字 ${Author} 默认为你的github帐号
+sed -i 's#downloads.openwrt.org#mirrors.cloud.tencent.com/lede#g' /etc/opkg/distfeeds.conf
+sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
+
+sed -i '/option disabled/d' /etc/config/wireless
+sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 
 #sed -i 's/PATCHVER:=4.14/PATCHVER:=4.9/g' target/linux/x86/Makefile                               # x86机型,默认内核4.14，修改内核为4.9
 
 # K3专用，编译K3的时候只会出K3固件
 #sed -i 's|^TARGET_|# TARGET_|g; s|# TARGET_DEVICES += phicomm-k3|TARGET_DEVICES += phicomm-k3|' target/linux/bcm53xx/image/Makefile
-
 
 # 在线更新时，删除不想保留固件的某个文件，在EOF跟EOF直接加入删除代码，记住这里对应的是固件的文件路径，比如： rm /etc/config/luci
 cat >$DELETE <<-EOF
@@ -48,19 +77,4 @@ sed -i 's/"Web 管理"/"Web"/g' `grep "Web 管理" -rl ./`
 sed -i 's/"管理权"/"改密码"/g' `grep "管理权" -rl ./`
 sed -i 's/"带宽监控"/"监控"/g' `grep "带宽监控" -rl ./`
 sed -i 's/"Argon 主题设置"/"Argon设置"/g' `grep "Argon 主题设置" -rl ./`
-
-# 流量统计
-git clone https://github.com/AlexZhuo/luci-app-bandwidthd.git package/luci-app-bandwidthd
-# 应用过滤
-git clone https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
-# clash代理
-git clone https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
-# 常用插件包
-# git clone https://github.com/siropboy/sirpdboy-package package/sirpdboy-package
-# AdGuardHome的openwrt的luci界面
-git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
-# KoolProxy 的 LuCI 控制界面
-git clone https://github.com/iwrt/luci-app-ikoolproxy.git package/luci-app-ikoolproxy
-# wdr4310
-git clone https://github.com/maximaqiu/openpack package/lean
 
