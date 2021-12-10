@@ -56,6 +56,9 @@ sed -i "s/OpenWrt /${Author} compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt 
 # sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 
 #sed -i 's/PATCHVER:=4.14/PATCHVER:=4.9/g' target/linux/x86/Makefile                               # x86机型,默认内核4.14，修改内核为4.9
+# wdr4310设置16M固件默认使用4.9内核-
+sed -i 's/PATCHVER:=4.14/PATCHVER:=4.9/g' target/linux/ar71xx/Makefile
+sed -i 's/tplink-8mlzma/tplink-16mlzma/g' target/linux/ar71xx/image/generic-tp-link.mk
 
 # K3专用，编译K3的时候只会出K3固件
 #sed -i 's|^TARGET_|# TARGET_|g; s|# TARGET_DEVICES += phicomm-k3|TARGET_DEVICES += phicomm-k3|' target/linux/bcm53xx/image/Makefile
